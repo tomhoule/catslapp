@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package app.catsl.media;
+
+message Timestamp {
+  int64 seconds = 1;
+  int32 nanos = 2;
+}
+
+enum ContentType {
+  UNSPECIFIED = 0;
+  WEBM = 1;
+  GIF = 2;
+}
+
+message AddMedium {
+  string uri = 1;
+}
+
+message MediumAdded {
+  string uri = 1;
+  ContentType content_type = 2;
+}
+
+message MediumDeleted {}
+
+message MediumEvent {
+  string stream_id = 1;
+  uint32 seq_no = 2;
+  Timestamp timestamp = 3;
+  oneof payload {
+    MediumAdded medium_added = 4;
+    MediumDeleted medium_deleted = 5;
+  }
+}

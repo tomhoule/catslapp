@@ -1,0 +1,32 @@
+[package]
+authors = ["Tom Houlé <tom@tomhoule.com>"]
+name = "catslapp"
+version = "0.1.0"
+[build-dependencies]
+prost-build = "*"
+
+[dependencies]
+actix = "*"
+actix-web = "*"
+bytes = "*"
+env_logger = "*"
+failure = "*"
+futures = "0.1"
+# hyper = "0.11"
+# hyper-tls = "0.1.3"
+linefeed = "*"
+log = "*"
+prost = "*"
+prost-derive = "*"
+prost-types = "*"
+serde = "*"
+serde_derive = "*"
+serde_json = "*"
+structopt = "*"
+tempdir = "*"
+tokio-core = "0.1"
+tokio-io = "0.1"
+
+[dependencies.uuid]
+features = ["v4"]
+version = "*"

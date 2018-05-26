@@ -1,19 +1,29 @@
 module Main exposing (..)
 
 import Html exposing (Html, text, div, h1, img)
+import Json.Decode as Decode
+import Array exposing (Array)
 import Html.Attributes exposing (src)
+import Http
 
 
 ---- MODEL ----
 
 
 type alias Model =
-    {}
+    { slaps : Array String
+    , slapIdx : Int
+    }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( {}, Cmd.none )
+    ( { slaps = Array.empty, slapIdx = 0 }, Http.send SlapsReceived (Http.get "http://localhost:8080/cat/slaps" slapsDecoder) )
+
+
+slapsDecoder : Decode.Decoder (Array String)
+slapsDecoder =
+    Decode.array Decode.string
 
 
 
@@ -21,12 +31,27 @@ init =
 
 
 type Msg
-    = NoOp
+    = GetSlaps
+    | SlapsReceived (Result Http.Error (Array String))
+    | NextSlap
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        NextSlap ->
+            ( { model | slapIdx = model.slapIdx + 1 }, Cmd.none )
+
+        GetSlaps ->
+            ( model, Cmd.none )
+
+        SlapsReceived res ->
+            case res of
+                Err _ ->
+                    ( model, Cmd.none )
+
+                Ok arr ->
+                    ( { model | slaps = arr }, Cmd.none )
 
 
 
@@ -36,9 +61,21 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ img [ src "/logo.svg" ] []
-        , h1 [] [ text "Your Elm App is working!" ]
+        [ h1 [] [ text "CAT. SLAPP!!!" ]
+        , content model
         ]
+
+
+content : Model -> Html Msg
+content model =
+    case Array.get model.slapIdx model.slaps of
+        Just slap ->
+            div []
+                [ img [ src slap ] []
+                ]
+
+        Nothing ->
+            div [] [ text "loading..." ]
 
 
 

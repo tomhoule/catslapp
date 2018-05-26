@@ -16,11 +16,13 @@ extern crate prost_types;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde;
+#[macro_use]
 extern crate serde_json;
 extern crate tokio_core;
 extern crate tokio_io;
 extern crate uuid;
 
+use actix_web::Json;
 use futures::prelude::*;
 use uuid::Uuid;
 
@@ -62,12 +64,25 @@ pub fn add_medium_proto() -> app::catsl::media::AddMedium {
     app::catsl::media::AddMedium::default()
 }
 
-pub fn hello(info: actix_web::Path<String>) -> String {
+fn hello(info: actix_web::Path<String>) -> String {
     format!("o, hai {}", info.into_inner())
 }
 
+fn cat_slaps_index(_: actix_web::Path<()>) -> actix_web::Json<serde_json::Value> {
+    Json(json!([
+        "https://i.redd.it/2ng5oz4dr8y01.gif",
+        "https://i.redd.it/ih37hk1qo9x01.jpg",
+    ]))
+}
+
 pub fn app_factory() -> actix_web::App {
-    actix_web::App::new().route("/hello/{name}", actix_web::http::Method::GET, hello)
+    let cors_middleware = actix_web::middleware::cors::Cors::build()
+        .send_wildcard()
+        .finish();
+    actix_web::App::new()
+        .middleware(cors_middleware)
+        .route("/hello/{name}", actix_web::http::Method::GET, hello)
+        .resource("/cat/slaps", |r| r.get().with(cat_slaps_index))
 }
 
 pub fn start_server() -> Result<(), failure::Error> {
